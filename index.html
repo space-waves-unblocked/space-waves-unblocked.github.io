@@ -102,13 +102,24 @@
       width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.08);
       aspect-ratio:16/9; object-fit:cover;
     }
-    /* Game frame */
-    .frame-wrap{margin-top:28px}
+    /* Game frame + FS controls */
+    .frame-wrap{margin-top:28px; position:relative}
     .frame{
       width:100%; height:70vh; min-height:520px; border:0; border-radius:16px;
       background:#050b16;
       box-shadow:0 20px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);
     }
+    .fs-controls{
+      position:absolute; top:12px; right:12px; display:flex; gap:8px; z-index:5;
+    }
+    .fs-btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; font-weight:700; border-radius:10px; border:1px solid rgba(255,255,255,.22);
+      background:rgba(6, 182, 212, .15); color:var(--text); cursor:pointer; backdrop-filter: blur(6px) saturate(1.2);
+    }
+    .fs-btn:hover{background:rgba(6, 182, 212, .25)}
+    .fs-btn:focus{outline:none; box-shadow:var(--ring)}
+    .fs-icon{font-size:16px; line-height:1}
     .toc{margin:34px 0 10px}
     .toc ol{display:flex; flex-wrap:wrap; gap:10px; padding:0; list-style:none}
     .toc a{display:inline-block; padding:8px 12px; border:1px solid rgba(255,255,255,.16); border-radius:999px}
@@ -128,6 +139,11 @@
     .store-badge{display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px; border:1px solid rgba(255,255,255,.2)}
     .store-badge img{height:20px; width:auto}
     .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+
+    /* Fullscreen tweaks: make the game fill the screen cleanly */
+    .frame-wrap:fullscreen { padding:0; border-radius:0; }
+    .frame-wrap:fullscreen .frame { height:100vh !important; width:100vw !important; border-radius:0; }
+    .frame-wrap:fullscreen .fs-controls { top:16px; right:16px; }
     @media (max-width: 980px){
       .hero{grid-template-columns:1fr}
       .frame{height:68vh}
@@ -359,12 +375,27 @@
     <section id="play" class="card frame-wrap" aria-label="Playable game">
       <h2>Play Space Waves Unblocked (Free Browser Version)</h2>
       <p class="small">Runs in your browser. If your network blocks iframes, use the official mobile apps below.</p>
+
+      <!-- Fullscreen controls overlay -->
+      <div class="fs-controls" role="group" aria-label="Game display controls">
+        <button id="fsToggle" class="fs-btn" type="button" aria-pressed="false" aria-controls="gameFrame">
+          <span class="fs-icon" aria-hidden="true">⤢</span>
+          <span id="fsLabel">Fullscreen</span>
+        </button>
+        <a id="openNew" class="fs-btn" href="https://space-waves-unblocked.github.io/space-waves/" target="_blank" rel="noopener">
+          <span class="fs-icon" aria-hidden="true">↗</span>
+          Open in New Tab
+        </a>
+      </div>
+
       <iframe
+        id="gameFrame"
         class="frame"
         title="Space Waves Unblocked — embedded game"
         src="https://space-waves-unblocked.github.io/space-waves/"
         loading="eager"
         referrerpolicy="no-referrer-when-downgrade"
+        allow="fullscreen; gamepad; xr-spatial-tracking; autoplay; clipboard-read; clipboard-write; accelerometer; gyroscope; magnetometer"
         allowfullscreen
         sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-top-navigation-by-user-activation">
       </iframe>
@@ -463,7 +494,7 @@
       </details>
       <details>
         <summary>Can I play fullscreen?</summary>
-        <p>Yes. Use the browser’s fullscreen button or the in-game option if shown.</p>
+        <p>Yes — use the <strong>Fullscreen</strong> button above the game.</p>
       </details>
       <details>
         <summary>Is the game free?</summary>
@@ -525,31 +556,26 @@
       if(!q) return;
       const hay = document.querySelector('main');
       if(!hay) return;
-      const markAll = (root, term) => {
-        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
-          acceptNode: node => node.nodeValue.toLowerCase().includes(term.toLowerCase()) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
-        });
-        const nodes = [];
-        while(walker.nextNode()) nodes.push(walker.currentNode);
-        nodes.forEach(n=>{
-          const span = document.createElement('mark');
-          const idx = n.nodeValue.toLowerCase().indexOf(term.toLowerCase());
-          const before = n.nodeValue.slice(0, idx);
-          const hit = n.nodeValue.slice(idx, idx + term.length);
-          const after = n.nodeValue.slice(idx + term.length);
-          const frag = document.createDocumentFragment();
-          if(before) frag.appendChild(document.createTextNode(before));
-          const m = document.createElement('mark'); m.textContent = hit; m.style.background='rgba(96,165,250,.3)'; m.style.padding='0 .12em'; m.style.borderRadius='4px';
-          frag.appendChild(m);
-          if(after) frag.appendChild(document.createTextNode(after));
-          const p = n.parentNode;
-          p.replaceChild(frag, n);
-        });
-        // Scroll to first match
-        const first = document.querySelector('mark');
-        if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
-      };
-      markAll(hay, q);
+      const walker = document.createTreeWalker(hay, NodeFilter.SHOW_TEXT, {
+        acceptNode: node => node.nodeValue.toLowerCase().includes(q.toLowerCase()) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT
+      });
+      const nodes = [];
+      while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(n=>{
+        const idx = n.nodeValue.toLowerCase().indexOf(q.toLowerCase());
+        if(idx < 0) return;
+        const before = n.nodeValue.slice(0, idx);
+        const hit = n.nodeValue.slice(idx, idx + q.length);
+        const after = n.nodeValue.slice(idx + q.length);
+        const frag = document.createDocumentFragment();
+        if(before) frag.appendChild(document.createTextNode(before));
+        const m = document.createElement('mark'); m.textContent = hit; m.style.background='rgba(96,165,250,.3)'; m.style.padding='0 .12em'; m.style.borderRadius='4px';
+        frag.appendChild(m);
+        if(after) frag.appendChild(document.createTextNode(after));
+        n.parentNode.replaceChild(frag, n);
+      });
+      const first = document.querySelector('mark');
+      if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
     })();
 
     // Smooth anchor scrolling & focus ring for accessibility
@@ -567,11 +593,57 @@
       });
     });
 
-    // Basic iframe focus trap hint for keyboard users
-    const frame = document.querySelector('.frame');
+    // Add helpful title once the iframe loads
+    const frame = document.getElementById('gameFrame');
     frame && frame.addEventListener('load', ()=> {
-      frame.setAttribute('title', 'Space Waves game frame (press Esc to exit game focus)');
+      frame.setAttribute('title', 'Space Waves game frame (press Esc to exit fullscreen)');
     });
+
+    // FULLSCREEN: toggle the container so the iframe fills the entire screen
+    (function(){
+      const container = document.querySelector('#play');
+      const btn = document.getElementById('fsToggle');
+      const label = document.getElementById('fsLabel');
+
+      function updateFSState(){
+        const isFS = !!document.fullscreenElement;
+        btn.setAttribute('aria-pressed', String(isFS));
+        label.textContent = isFS ? 'Exit Fullscreen' : 'Fullscreen';
+        btn.querySelector('.fs-icon').textContent = isFS ? '⤡' : '⤢';
+      }
+
+      async function toggleFS(){
+        try{
+          if(!document.fullscreenElement){
+            // Request fullscreen on the container (works across browsers; no special iframe permission needed)
+            await container.requestFullscreen({ navigationUI: 'hide' });
+          }else{
+            await document.exitFullscreen();
+          }
+        }catch(err){
+          // Fallback: try to fullscreen the iframe itself, then final fallback to opening new tab
+          try{
+            if(frame.requestFullscreen) await frame.requestFullscreen();
+            else window.open(frame.src, '_blank', 'noopener');
+          }catch(e2){
+            window.open(frame.src, '_blank', 'noopener');
+          }
+        }finally{
+          updateFSState();
+        }
+      }
+
+      if(btn){
+        btn.addEventListener('click', toggleFS);
+        document.addEventListener('fullscreenchange', updateFSState);
+        // Keyboard shortcut: press "f" when the frame is in view
+        document.addEventListener('keydown', (e)=>{
+          if((e.key === 'f' || e.key === 'F') && document.activeElement !== document.querySelector('input, textarea')){
+            toggleFS();
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>
