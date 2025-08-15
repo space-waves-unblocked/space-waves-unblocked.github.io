@@ -294,6 +294,42 @@
 
   <main id="top" class="wrap">
     <p class="breadcrumbs">Home / <strong>Space Waves Unblocked</strong></p>
+    <!-- PLAY -->
+    <section id="play" class="card frame-wrap" aria-label="Playable game">
+      <h2>Play Space Waves Unblocked (Free Browser Version)</h2>
+      <p class="small">Runs in your browser. If your network blocks iframes, use the official mobile apps below.</p>
+
+      <!-- The ONLY element that goes fullscreen -->
+      <div id="gameShell" class="game-shell" aria-label="Game area">
+        <!-- Fullscreen controls overlay -->
+        <div class="fs-controls" role="group" aria-label="Game display controls">
+          <button id="fsToggle" class="fs-btn" type="button" aria-pressed="false" aria-controls="gameFrame">
+            <span class="fs-icon" aria-hidden="true">⤢</span>
+            <span id="fsLabel">Fullscreen</span>
+          </button>
+          <a id="openNew" class="fs-btn" href="https://space-waves-unblocked.github.io/space-waves/" target="_blank" rel="noopener">
+            <span class="fs-icon" aria-hidden="true">↗</span>
+            Open in New Tab
+          </a>
+        </div>
+
+        <iframe
+          id="gameFrame"
+          class="frame"
+          title="Space Waves Unblocked — embedded game"
+          src="https://space-waves-unblocked.github.io/space-waves/"
+          loading="eager"
+          referrerpolicy="no-referrer-when-downgrade"
+          allow="fullscreen; gamepad; xr-spatial-tracking; autoplay; clipboard-read; clipboard-write; accelerometer; gyroscope; magnetometer"
+          allowfullscreen
+          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-top-navigation-by-user-activation">
+        </iframe>
+      </div>
+
+      <noscript>
+        JavaScript is required to play. <a href="https://space-waves-unblocked.github.io/space-waves/" rel="nofollow">Open the game directly</a>.
+      </noscript>
+    </section>
 
     <section class="hero hero-card" id="overview">
       <div>
@@ -342,42 +378,6 @@
       </ol>
     </nav>
 
-    <!-- PLAY -->
-    <section id="play" class="card frame-wrap" aria-label="Playable game">
-      <h2>Play Space Waves Unblocked (Free Browser Version)</h2>
-      <p class="small">Runs in your browser. If your network blocks iframes, use the official mobile apps below.</p>
-
-      <!-- The ONLY element that goes fullscreen -->
-      <div id="gameShell" class="game-shell" aria-label="Game area">
-        <!-- Fullscreen controls overlay -->
-        <div class="fs-controls" role="group" aria-label="Game display controls">
-          <button id="fsToggle" class="fs-btn" type="button" aria-pressed="false" aria-controls="gameFrame">
-            <span class="fs-icon" aria-hidden="true">⤢</span>
-            <span id="fsLabel">Fullscreen</span>
-          </button>
-          <a id="openNew" class="fs-btn" href="https://space-waves-unblocked.github.io/space-waves/" target="_blank" rel="noopener">
-            <span class="fs-icon" aria-hidden="true">↗</span>
-            Open in New Tab
-          </a>
-        </div>
-
-        <iframe
-          id="gameFrame"
-          class="frame"
-          title="Space Waves Unblocked — embedded game"
-          src="https://space-waves-unblocked.github.io/space-waves/"
-          loading="eager"
-          referrerpolicy="no-referrer-when-downgrade"
-          allow="fullscreen; gamepad; xr-spatial-tracking; autoplay; clipboard-read; clipboard-write; accelerometer; gyroscope; magnetometer"
-          allowfullscreen
-          sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-top-navigation-by-user-activation">
-        </iframe>
-      </div>
-
-      <noscript>
-        JavaScript is required to play. <a href="https://space-waves-unblocked.github.io/space-waves/" rel="nofollow">Open the game directly</a>.
-      </noscript>
-    </section>
 
     <!-- HOW TO -->
     <section id="howto" class="card">
